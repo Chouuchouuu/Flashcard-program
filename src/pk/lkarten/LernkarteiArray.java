@@ -1,5 +1,4 @@
 package pk.lkarten;
-
 import java.util.Random;
 
 public class LernkarteiArray   { // Box für Karten 
@@ -9,10 +8,13 @@ public class LernkarteiArray   { // Box für Karten
 	
 	public LernkarteiArray (int kapazitaet) {
 		karten =new Lernkarte [kapazitaet];
-		
 	}
 	
 	public void hinzufuegen(Lernkarte karte) throws UngueltigeKarteException {
+		if (karte == null) {
+	        throw new UngueltigeKarteException("Karte darf nicht null sein!");
+	    }
+		
 		karte.validiere();
 		
 		if( anzahl < karten.length ) {
@@ -24,9 +26,8 @@ public class LernkarteiArray   { // Box für Karten
 	}
 	
 	public void druckeAlleKarten () {
-
 		for (int i = 0; i < anzahl; i++) {
-			System.out.println(karten[i]);// karten[i] = toSting Methode aufrufen 
+			System.out.println(karten[i]);
 		}
 	}
 	
@@ -73,17 +74,18 @@ public class LernkarteiArray   { // Box für Karten
 	    return array;
 	}
 	
-	public Lernkarte[] erzeugeDeck(int anzahlKarten) { // Wie eine Test erstellen 
-		Random r =new Random();
-		
-		Lernkarte[] deck = new Lernkarte[anzahlKarten];
-		for(int j=0; j<anzahlKarten;j++) {
-			int z=r.nextInt(anzahl); //r.nextInt(anzahl) gehört zu Random
-			deck[j]=karten[z];
-		}
-		return deck;
+	public Lernkarte[] erzeugeDeck(int anzahlKarten) {
+	    Random r = new Random();
+	    Lernkarte[] deck = new Lernkarte[anzahlKarten];
+
+	    for (int j = 0; j < anzahlKarten; j++) {
+	        int z = r.nextInt(anzahl);
+	        
+	        if (karten[z] == null) {
+	            throw new IllegalStateException("Karte im Array ist null!");
+	        }
+	        deck[j] = karten[z];
+	    }
+	    return deck;
 	}
-
-
 }
-

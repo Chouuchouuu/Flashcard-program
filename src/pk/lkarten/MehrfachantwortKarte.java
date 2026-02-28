@@ -4,29 +4,50 @@ import java.util.Arrays;
 
 public class MehrfachantwortKarte extends Lernkarte{
 	private String[] moeglicheAntworten;
-	private String[] richtigeAntworten;
+	private int[] richtigeAntworten;
 	
-	public MehrfachantwortKarte(String kategorie, String titel, String frage, String[] antworten, String[] richtige) 
-			throws UngueltigeKarteException {
+	public MehrfachantwortKarte(int id, String kategorie, String titel, String frage, String[] antworten, int[] richtigeArr) {
+		 super(id, kategorie, titel, frage);
+		 this.moeglicheAntworten = antworten;
+		 this.richtigeAntworten = richtigeArr;
+	 }
+	 
+	public MehrfachantwortKarte(String kategorie, String titel, String frage, String[] moeglicheAntworten, int[] richtigeAntworten) {
 		super(kategorie, titel, frage);
-		this.moeglicheAntworten = antworten;
-		this.richtigeAntworten = richtige;
-		validiere();
+		this.moeglicheAntworten = moeglicheAntworten;
+		this.richtigeAntworten = richtigeAntworten;
+	}
+	
+	@Override
+	public String exportiereAlsCsv() {
+		String moegAntStr = Arrays.toString(moeglicheAntworten); // Array in Text umwandeln (toString(arr) von Java-Standardbibliothek)
+		String richAntStr = Arrays.toString(richtigeAntworten);
+		
+		return super.exportiereAlsCsv() + ",\"" + moegAntStr + "\",\"" + richAntStr + "\"";
 	}
 	
 	@Override
 	public void validiere() throws UngueltigeKarteException {
-        super.validiere();
-        
-        if (moeglicheAntworten == null || moeglicheAntworten.length < 2) {
-            throw new UngueltigeKarteException("Bitte mindestens 2 Antworten angeben!");
-        }
-        for (String a : moeglicheAntworten) {
-        	if (a == null || a.equals("")) {
-        		throw new UngueltigeKarteException("Mögliche Antworten dürfen nicht leer sein!");
-        	}
-        }
-    }
+	    super.validiere();
+
+	    if (moeglicheAntworten == null || moeglicheAntworten.length < 2) {
+	        throw new UngueltigeKarteException("Bitte mindestens 2 mögliche Antworten angeben!");
+	    }
+	    for (String a : moeglicheAntworten) {
+	        if (a == null || a.equals("")) {
+	            throw new UngueltigeKarteException("Mögliche Antworten dürfen nicht leer sein!");
+	        }
+	    }
+	    
+	    if (richtigeAntworten == null || richtigeAntworten.length == 0) {
+	        throw new UngueltigeKarteException("Mindestens eine richtige Antwort muss angegeben werden!");
+	    }
+	    for (String a : moeglicheAntworten) {
+	        if (a == null || a.isBlank()) {
+	            throw new UngueltigeKarteException("Mögliche Antworten dürfen nicht leer sein!");
+	        }
+	    }
+	}
 	
 	@Override
 	public int hashCode() {
@@ -39,19 +60,29 @@ public class MehrfachantwortKarte extends Lernkarte{
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		MehrfachantwortKarte other = (MehrfachantwortKarte) obj;
-		return Arrays.equals(moeglicheAntworten, other.moeglicheAntworten)
-				&& Arrays.equals(richtigeAntworten, other.richtigeAntworten);
+	    if (this == obj) return true;
+	    if (!(obj instanceof MehrfachantwortKarte other)) return false;
+	    if (!super.equals(other)) return false;
+
+	    return Arrays.equals(moeglicheAntworten, other.moeglicheAntworten)
+	        && Arrays.equals(richtigeAntworten, other.richtigeAntworten);
+	}
+	
+	@Override
+	public void zeigeVorderseite() {
+	    System.out.println("[" + getId() + ", " + getKategorie() + "] " + getTitel() + ":");
+	    System.out.println(getFrage());
+	    
+	    for (int i = 0; i < moeglicheAntworten.length; i++) {
+	        System.out.println((i + 1) + ": " + moeglicheAntworten[i]);
+	    }
+
+	    if (richtigeAntworten.length > 1) {
+	        System.out.println("(mehrere Antworten möglich)");
+	    }
 	}
 
-
-	public String[] getRichtigeAntworten() {
+	public int[] getRichtigeAntworten() {
 		return richtigeAntworten;
 	}
 	
@@ -70,10 +101,11 @@ public class MehrfachantwortKarte extends Lernkarte{
 			antworten += "\n " + z +": " + richtigeAntworten[i];
 			z++;
 		}
-		System.out.print("Die richtigen Antworten sind: " + "\n" + antworten);
+		System.out.println("Die richtigen Antworten sind:\n" + antworten);
 	}
 	
-	public String toString() {
+	public String toString() {  //Objekt in Text umwandeln
+		
 		String antworten = ""; //String mit möglichen Antworten 
 		int z=1;
 		for(int i = 0; i < moeglicheAntworten.length; i++) {
@@ -88,8 +120,27 @@ public class MehrfachantwortKarte extends Lernkarte{
 			x++;
 		}//Geht durch das Array mit richtigen Antworten 
 		
-        return "[" + getId() + ", " + getKategorie() + "] " + getTitel() + ":\n"
-             + getFrage() + antworten + "\n" + "(mehrere Antworten möglich)"+ "\n"+ "Die richtigen Antworten sind: "+rAntworten+"\n";
+        return super.toString() + antworten + "\n" + "(mehrere Antworten möglich)"+ "\n"+ "Die richtigen Antworten sind: "+rAntworten+"\n";
     }
+	
+	@Override
+	public String gibVorderseite() {
+		String ausgabe = super.toString();
+		String[] antworten = getMoeglicheAntworten();
+		
+		for (int i = 0; i < antworten.length; i++) ausgabe += (i + 1) + ": " + antworten[i] + "\n";
+		
+		return ausgabe + "\n(mehrere Antworten möglich)";
+	}
+	
+	@Override 
+	public String gibRueckseite() {
+		String antworten = "";
 
+		for(int i = 0; i < richtigeAntworten.length; i++) {
+			int index = richtigeAntworten[i];
+			antworten += (i + 1) + ": " + moeglicheAntworten[index] + "\n";
+		}
+		return "Die richtigen Antworten sind:\n" + antworten;
+	}
 }

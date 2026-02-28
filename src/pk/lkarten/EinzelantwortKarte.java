@@ -5,16 +5,23 @@ import java.util.Objects;
 public class EinzelantwortKarte extends Lernkarte {
 	private String antwort;
 	
-	public EinzelantwortKarte(String kategorie, String titel, String frage, String antwort) 
-			throws UngueltigeKarteException {
+	public EinzelantwortKarte(String kategorie, String titel, String frage, String antwort) {
 		super(kategorie, titel, frage);
 		this.antwort = antwort;
-		validiere();
+	}
+	
+	public EinzelantwortKarte(int id, String kategorie, String titel, String frage, String antwort){
+        super(id, kategorie, titel, frage);
+        this.antwort = antwort;
+    }
+	
+	public String exportiereAlsCsv() { 
+		return super.exportiereAlsCsv() + "," + getAntwort();
 	}
 	
 	public void validiere() throws UngueltigeKarteException {
         super.validiere();
-        if (antwort == null) {
+        if (antwort == null || antwort.isBlank()) {
             throw new UngueltigeKarteException("Antwort darf nicht null sein");
         }
     }
@@ -29,20 +36,15 @@ public class EinzelantwortKarte extends Lernkarte {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		EinzelantwortKarte other = (EinzelantwortKarte) obj;
-		return Objects.equals(antwort, other.antwort);
+	    if (this == obj) return true;
+	    if (!(obj instanceof EinzelantwortKarte other)) return false;
+	    if (!super.equals(other)) return false;
+
+	    return Objects.equals(antwort, other.antwort);
 	}
 
-
-
 	public void zeigeRueckseite() {
-		System.out.print("\t" + getAntwort());
+		System.out.println("\t" + getAntwort());
 	}
 	
 	public String getAntwort() {
@@ -50,7 +52,16 @@ public class EinzelantwortKarte extends Lernkarte {
 	}
 	
 	public String toString() {
-        return "[" + getId() + ", " + getKategorie() + "] " + getTitel() + ":\n"
-             + getFrage() + "\n" + antwort + "\n" ;
+        return super.toString() + antwort + "\n" ;
     }
+	
+	@Override
+	public String gibVorderseite() {
+		return super.toString() + "\n";
+	}
+	
+	@Override 
+	public String gibRueckseite() {
+		return antwort + "\n";
+	}
 }
